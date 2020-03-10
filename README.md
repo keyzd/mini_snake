@@ -1,2 +1,2 @@
-Controls: WASD or UP, DOWN, LEFT, RIGHT
-#![Screenshoot](screen.png)
+Controls: WASD or UP, DOWN, LEFT, RIGHT  
+![Screenshoot](screen.png)

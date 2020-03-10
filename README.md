@@ -1,4 +1,2 @@
-# mini_snake
-Simple snake game
-
+Controls: WASD or UP, DOWN, LEFT, RIGHT
 ![Screenshoot](screen.png)

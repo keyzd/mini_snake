@@ -2,9 +2,12 @@
 #include <time.h>
 #include <SDL2/SDL.h>
 #include <math.h>
+#include <stdint.h>
 
 #define WIN_H 384
 #define WIN_W 384
+
+#define CELL_SIZE 16
 
 typedef struct node
 {
@@ -29,7 +32,7 @@ void draw_snake(node_t* head, SDL_Renderer* renderer)
 	}
 }
 
-void move(node_t* head, SDL_Renderer* renderer, int* run, int dir_x, int dir_y)
+void move(node_t* head, int* run, int dir_x, int dir_y)
 {
 	if( head->block.x > WIN_W-head->block.w ||
 		head->block.x < 0 ||
@@ -83,32 +86,31 @@ void increase_snake(node_t* head)
 
 void food_recalc(int* x, int* y, node_t* head)
 {
-
-		int nx, ny;
-		node_t* current;
-		int flag = 1;
+	int nx, ny;
+	node_t* current;
+	int flag = 1;
 
 	while(flag)
 	{
 		nx = 1.0+(int)(23.0*rand()/(RAND_MAX+1.0));
 		ny = 1.0+(int)(23.0*rand()/(RAND_MAX+1.0));
 
+		*x = nx * CELL_SIZE;
+		*y = ny * CELL_SIZE;
+
 		for(current = head; current != NULL; current = current->prev)
 		{
-			if(nx == current->block.x && ny == current->block.y)
+			if(*x == current->block.x && *y == current->block.y)
 			{
 				break;
 			}
-			if(current->prev == NULL)
+			else if(current->prev == NULL)
 			{
 				flag = 0;
 				break;
 			}
 		}
 	}
-
-	*x = nx * 16;
-	*y = ny * 16;
 }
 
 
@@ -138,34 +140,34 @@ int main()
 	head->prev = NULL;
 	head->block.x = 0;
 	head->block.y = 0;
-	head->block.h = 16;
-	head->block.w = 16;
+	head->block.h = CELL_SIZE;
+	head->block.w = CELL_SIZE;
 	head->prev_x = 0;
 	head->prev_y = 0;
 
 	node_t* tail = head;
 
-	int dir_y = 16;
+	int dir_y = CELL_SIZE;
 	int dir_x = 0;
 
 	srand(time(NULL));
 
 	SDL_Rect food;
 	food_recalc(&food.x, &food.y, head);
-	food.h = 16;
-	food.w = 16;
+	food.h = CELL_SIZE;
+	food.w = CELL_SIZE;
 
 	int SCREEN_FPS = 2; 
-	int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
+	uint32_t SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 
 	int countedFrames = 0;
 	float avgFPS = 0;
-	unsigned int time_tmp = 0;
-	unsigned int startedTime = 0;
+	uint32_t time_tmp = 0;
+	uint32_t startedTime = 0;
 	startedTime = SDL_GetTicks();
 
-	unsigned int timeCap = 0;
-	unsigned int startedTimeCap = 0;
+	uint32_t timeCap = 0;
+	uint32_t startedTimeCap = 0;
 
 
 	int score = 0;
@@ -186,36 +188,36 @@ int main()
 				{
 					case SDLK_UP:
 					case SDLK_w:
-						if(dir_y != 16)
+						if(dir_y != CELL_SIZE)
 						{
-							dir_y = -16;
+							dir_y = -CELL_SIZE;
 							dir_x = 0;
 						}
 						break;
 
 					case SDLK_DOWN:
 					case SDLK_s:
-						if(dir_y != -16)
+						if(dir_y != -CELL_SIZE)
 						{
-							dir_y = 16;
+							dir_y = CELL_SIZE;
 							dir_x = 0;
 						}
 						break;
 
 					case SDLK_LEFT:
 					case SDLK_a:
-						if(dir_x != 16)
+						if(dir_x != CELL_SIZE)
 						{
-							dir_x = -16;
+							dir_x = -CELL_SIZE;
 							dir_y = 0;
 						}
 						break;
 
 					case SDLK_RIGHT:
 					case SDLK_d:
-						if(dir_x != -16)
+						if(dir_x != -CELL_SIZE)
 						{
-							dir_x = 16;
+							dir_x = CELL_SIZE;
 							dir_y = 0;
 						}
 						break;
@@ -223,7 +225,7 @@ int main()
 			}
 		}
 
-		move(head, renderer, &run, dir_x, dir_y);
+		move(head, &run, dir_x, dir_y);
 
 		if(head->block.x == food.x && head->block.y == food.y)
 		{

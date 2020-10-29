@@ -7,7 +7,10 @@
 #define WIN_H 384
 #define WIN_W 384
 
-#define CELL_SIZE 16
+#define CELL_SIZE 8
+
+#define CELLS_VERT WIN_W/CELL_SIZE
+#define CELLS_HORIZ WIN_H/CELL_SIZE
 
 typedef struct snakepart_s
 {
@@ -92,8 +95,8 @@ void food_recalc(int* x, int* y, snakepart_t* head)
 
 	while(flag)
 	{
-		nx = 1.0+(int)(23.0*rand()/(RAND_MAX+1.0));
-		ny = 1.0+(int)(23.0*rand()/(RAND_MAX+1.0));
+		nx = 1.0+(int)((CELLS_HORIZ-1.0)*rand()/(RAND_MAX+1.0));
+		ny = 1.0+(int)((CELLS_VERT-1.0)*rand()/(RAND_MAX+1.0));
 
 		*x = nx * CELL_SIZE;
 		*y = ny * CELL_SIZE;

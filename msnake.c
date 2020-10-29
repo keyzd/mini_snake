@@ -9,18 +9,18 @@
 
 #define CELL_SIZE 16
 
-typedef struct node
+typedef struct snakepart_s
 {
-	struct node* next;
-	struct node* prev;
+	struct snakepart_s* next;
+	struct snakepart_s* prev;
 	SDL_Rect block;
 	int prev_x;
 	int prev_y;
-}node_t;
+}snakepart_t;
 
-void draw_snake(node_t* head, SDL_Renderer* renderer)
+void draw_snake(snakepart_t* head, SDL_Renderer* renderer)
 {
-	node_t* current;
+	snakepart_t* current;
 
 	SDL_SetRenderDrawColor(renderer, 0, 120, 0, 255);
 	SDL_RenderFillRect(renderer, &(head->block));
@@ -32,7 +32,7 @@ void draw_snake(node_t* head, SDL_Renderer* renderer)
 	}
 }
 
-void move(node_t* head, int* run, int dir_x, int dir_y)
+void move(snakepart_t* head, int* run, int dir_x, int dir_y)
 {
 	if( head->block.x > WIN_W-head->block.w ||
 		head->block.x < 0 ||
@@ -42,7 +42,7 @@ void move(node_t* head, int* run, int dir_x, int dir_y)
 		*run = 0;
 	}
 
-	node_t* current;
+	snakepart_t* current;
 
 	head->prev_x = head->block.x;
 	head->prev_y = head->block.y;
@@ -67,12 +67,12 @@ void move(node_t* head, int* run, int dir_x, int dir_y)
 	}
 }
 
-void increase_snake(node_t* head)
+void increase_snake(snakepart_t* head)
 {
-	node_t* current;
+	snakepart_t* current;
 	for(current = head; current->prev != NULL; current = current->prev);
 
-	current->prev = malloc(sizeof(node_t));
+	current->prev = malloc(sizeof(snakepart_t));
 
 	current->prev->block.h = current->block.h;
 	current->prev->block.w = current->block.w;
@@ -84,10 +84,10 @@ void increase_snake(node_t* head)
 	current->prev->prev_y = current->prev_y;
 }
 
-void food_recalc(int* x, int* y, node_t* head)
+void food_recalc(int* x, int* y, snakepart_t* head)
 {
 	int nx, ny;
-	node_t* current;
+	snakepart_t* current;
 	int flag = 1;
 
 	while(flag)
@@ -121,7 +121,7 @@ int main()
 	SDL_Event e;
 	int run = 1;
 	
-	SDL_Init(SDL_INIT_VIDEO);
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
 	window = SDL_CreateWindow
 		(
 		 "Mini snake",
@@ -135,7 +135,7 @@ int main()
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
 
-	node_t* head = malloc(sizeof(node_t));
+	snakepart_t* head = malloc(sizeof(snakepart_t));
 	head->next = NULL;
 	head->prev = NULL;
 	head->block.x = 0;
@@ -145,7 +145,7 @@ int main()
 	head->prev_x = 0;
 	head->prev_y = 0;
 
-	node_t* tail = head;
+	snakepart_t* tail = head;
 
 	int dir_y = CELL_SIZE;
 	int dir_x = 0;
@@ -169,18 +169,13 @@ int main()
 	uint32_t timeCap = 0;
 	uint32_t startedTimeCap = 0;
 
-
 	int score = 0;
 	while(run)
 	{
 		startedTimeCap = SDL_GetTicks();
-
 		while(SDL_PollEvent(&e) != 0)
 		{
-			if(e.type == SDL_QUIT)
-			{
-				run = 0;
-			}
+			if(e.type == SDL_QUIT) run = 0;
 
 			else if(e.type == SDL_KEYDOWN)
 			{
